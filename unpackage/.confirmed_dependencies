@@ -1,0 +1,23 @@
+{
+  "index.html": {
+    "resources": [
+      "page1.html"
+    ],
+    "refer": [
+      "page3.html",
+      "page2.html",
+      "page4.html",
+      "page1.html"
+    ]
+  },
+  "page1.html": {
+    "refer": [
+      "info.html"
+    ]
+  },
+  "page3.html": {
+    "refer": [
+      "info.html"
+    ]
+  }
+}

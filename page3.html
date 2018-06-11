@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+		</script>
+	</head>
+	<body id="refreshContainer">
+		<header class="mui-bar mui-bar-nav">
+		    <h1 class="mui-title">热点</h1>
+		</header>
+		<div class="mui-content">
+		    <ul class="mui-table-view" id="newsList" style="background:#FFFFFF;"></ul>
+		</div>
+	</body>
+	<script>
+		var _index, _self, _next, _prev;
+		mui.plusReady(function(){
+			_index= plus.webview.getLaunchWebview();  
+			_self = plus.webview.currentWebview();
+			_prev = plus.webview.getWebviewById('page2.html');  
+			_next = plus.webview.getWebviewById('page4.html');
+			_self.drag(
+			    {direction : "left", moveMode :"followFinger"},	//向左侧滑
+			    {view:_next, moveMode  : "follow"},
+			    function(e){
+			        if(e.type == 'end' && e.result){	//侧滑后底部导航按钮同步切换
+		                _index.evalJS("mui('#navFooter a').each(function(){this.className='mui-tab-item'}); mui('#nav4')[0].className='mui-tab-item mui-active';");	
+		            }
+			});
+			_self.drag(
+			    {direction : "right", moveMode :"followFinger"},	//向右侧滑
+			    {view:_prev, moveMode : "follow"},
+			    function(e){
+			        if(e.type == 'end' && e.result){	//侧滑后底部导航按钮同步切换
+		                _index.evalJS("mui('#navFooter a').each(function(){this.className='mui-tab-item'}); mui('#nav2')[0].className='mui-tab-item mui-active';");	
+		            }
+			});
+			
+			mui.get('http://hoa.hcoder.net/index.php?user=hcoder&pwd=hcoder&m=mediaList&page=1',
+		    function(res){
+		        var arr  = res.split('--hcSplitor--'), html = '';
+		        for(var i = 0; i < arr.length; i++){
+		            var itemArr = arr[i].split('--hcListSplitor--');
+		            html += '<li class="mui-table-view-cell mui-media"><a href="javascript:openInfo('+itemArr[0]+');"><div class="img"><img class="mui-media-object mui-pull-left" src="'+itemArr[1]+'"></div><div class="mui-ellipsis">'+itemArr[2]+'</div></a></li>';
+		        }
+		        document.getElementById('newsList').innerHTML = html; 
+			});
+		})
+		var page = 1;
+		mui.init({
+		    pullRefresh : {
+		        container:"#refreshContainer",//下拉刷新容器标识
+		        down : {
+		            height:50,//可选,默认50.触发下拉刷新拖动距离,
+		            auto: true,//可选,默认false.自动下拉刷新一次
+		            contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+		            contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+		            contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+		            callback : getList //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+		        },
+		        up : {
+		            height:50,//可选.默认50.触发上拉加载拖动距离
+		            auto:true,//可选,默认false.自动上拉加载一次
+		            contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+		            contentnomore:"没有更多数据了",//可选，请求完毕若没有更多数据时显示的提醒内容；
+		            callback : getListByPage //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+		        }
+		    },
+		});
+		function getList(){	//下拉刷新
+		    mui.get( 'http://hoa.hcoder.net/index.php?user=hcoder&pwd=hcoder&m=mediaList&page=1',
+		        function(res){
+		            var arr  = res.split('--hcSplitor--'), html = '';
+		            for(var i = 0; i < arr.length; i++){
+		                var itemArr = arr[i].split('--hcListSplitor--');
+		                html += '<li class="mui-table-view-cell mui-media"><a href="javascript:openInfo('+itemArr[0]+');"><div class="img"><img class="mui-media-object mui-pull-left" src="'+itemArr[1]+'"></div><div class="mui-ellipsis">'+itemArr[2]+'</div></a></li>';
+		            }
+			        document.getElementById('newsList').innerHTML = html;
+		            mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+			        mui('#refreshContainer').pullRefresh().refresh(true); 	//重置上拉
+		            page = 2;
+			});
+		}
+		function getListByPage(){		//上拉加载
+		    var _this = this;
+		    mui.get('http://hoa.hcoder.net/index.php?user=hcoder&pwd=hcoder&m=mediaList&page='+page,
+		        function(res){
+			        if(res == 'null'){ _this.endPullupToRefresh(true);   return false; }
+		            var arr  = res.split('--hcSplitor--'),  html = '';
+		            for(var i = 0; i < arr.length; i++){
+		                var itemArr = arr[i].split('--hcListSplitor--');
+		                html += '<li class="mui-table-view-cell mui-media"><a href="javascript:openInfo('+itemArr[0]+');"><div class="img"><img class="mui-media-object mui-pull-left" src="'+itemArr[1]+'"></div><div class="mui-ellipsis">'+itemArr[2]+'</div></a></li>';
+		            }
+		            document.getElementById('newsList').innerHTML = html;
+		            _this.endPullupToRefresh(false);
+		            page++;
+		        });
+		}
+		function openInfo(id){
+			mui.openWindow({
+				url : 'info.html',
+				id  : 'info.html',
+				styles : {top :'0', bottom:'0', width:"100%"},
+				extras : {newsId : id}
+			});
+		};		
+
+	</script>
+</html>

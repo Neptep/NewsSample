@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+		</script>
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<nav class="mui-bar mui-bar-tab" id="navFooter">
+				<a class="mui-tab-item mui-active" id="nav1">
+					<span class="mui-icon mui-icon-home"></span>
+					<span class="mui-tab-label">首页</span>
+				</a>
+				<a class="mui-tab-item" id="nav2">
+					<span class="mui-icon mui-icon-videocam"></span>
+					<span class="mui-tab-label">视频</span>
+				</a>
+				<a class="mui-tab-item" id="nav3">
+					<span class="mui-icon mui-icon-star"></span>
+					<span class="mui-tab-label">热点</span>
+				</a>
+				<a class="mui-tab-item" id="nav4">
+					<span class="mui-icon mui-icon-gear"></span>
+					<span class="mui-tab-label">我的</span>
+				</a>
+			</nav>
+
+		</div>
+	</body>
+	<script>
+		mui.init({
+			subpages: [{
+				url: 'page1.html', 
+				id  : 'page1.html',
+				styles: {
+					top:'0px',
+					bottom: '44px',
+					width: "100%"}
+				},
+				{
+					url: 'page2.html', 
+					id: 'page2.html',
+					styles: {
+						top: '0px',
+						bottom: '44px',
+						width: "100%",
+						left: "100%"}
+				},
+				{
+					url: 'page3.html', 
+					id: 'page3.html',
+					styles: {
+						top: '0px',
+						bottom: '44px',
+						width: "100%",
+						left: "200%"}
+				},
+				{
+					url: 'page4.html',
+					id: 'page4.html',
+					styles: {
+						top: '0px',
+						bottom: '44px',
+						width: "100%",
+						left: "300%"}
+				}
+			]
+			
+		});
+		
+		
+		function changSub(index){
+			var page1 = plus.webview.getWebviewById('page1.html');
+	    	var page2 = plus.webview.getWebviewById('page2.html');
+	    	var page3 = plus.webview.getWebviewById('page3.html');
+	    	var page4 = plus.webview.getWebviewById('page4.html');
+			page1.setStyle({left: (1 - index) * 100 + "%"}); 
+			page2.setStyle({left: (2 - index) * 100 + "%"});
+			page3.setStyle({left: (3 - index) * 100 + "%"});
+			page4.setStyle({left: (4 - index) * 100 + "%"});
+		}
+			
+		document.getElementById("nav1").addEventListener('tap',function(){changSub(1);});
+		document.getElementById("nav2").addEventListener('tap',function(){changSub(2);});
+		document.getElementById("nav3").addEventListener('tap',function(){changSub(3);});
+		document.getElementById("nav4").addEventListener('tap',function(){changSub(4);});
+		
+	</script>
+
+</html>

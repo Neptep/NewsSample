@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+		</script>
+
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <h1 class="mui-title">我的</h1>
+		</header>
+		<div class="mui-content" style="text-align: center;" >
+			<ul class="mui-table-view mui-grid-view">
+			    <li class="mui-table-view-cell mui-media mui-col-xs-6">
+			        <a href="#">
+			            <img id="userphoto" class="mui-media-object" src="http://placehold.it/400x300">
+			            <div id="name" class="mui-media-body">用户名</div>
+			        </a>
+			    </li>
+			</ul>
+			<img id="userphoto" style="align-content: center;" />
+		    
+		</div>
+		<button type="button" id="qq" class="mui-btn mui-btn-blue mui-btn-block">QQ登录</button>
+		<button type="button" id="weixin" class="mui-btn mui-btn-blue mui-btn-block">微信登录</button>
+	</body>
+	<script>
+		var _index, _self, _prev;
+		mui.plusReady(function(){
+			_index= plus.webview.getLaunchWebview();  
+			_self = plus.webview.currentWebview();
+			_prev = plus.webview.getWebviewById('page3.html');  
+			_self.drag(
+			    {direction : "right", moveMode :"followFinger"},	//向右侧滑
+			    {view:_prev, moveMode : "follow"},
+			    function(e){
+			        if(e.type == 'end' && e.result){	//侧滑后底部导航按钮同步切换
+		                _index.evalJS("mui('#navFooter a').each(function(){this.className='mui-tab-item'}); mui('#nav3')[0].className='mui-tab-item mui-active';");	
+		            }
+			});
+		})
+		mui.plusReady(function() {   
+		            plus.oauth.getServices(function(services) { 
+		                auths = services; 
+		            }, function(e) { 
+		                alert("获取登录服务列表失败：" + e.message + " - " + e.code); 
+		            }); 
+		        document.getElementById('weixin').addEventListener('tap',function() { 
+		            console.log("微信");
+		            authLogin('weixin');
+		        }) 
+		        document.getElementById('qq').addEventListener('tap',function() { 
+		            console.log("QQ"); 
+		            authLogin('qq'); 
+		        }) 
+		})
+		function authLogin(type) { 
+            var s; 
+            for (var i = 0; i < auths.length; i++) { 
+                if (auths[i].id == type) { s = auths[i];  break; } 
+            } 
+            if (!s.authResult) { 
+                s.login(function(e) { 
+                    mui.toast("登录认证成功！"); 
+                    authUserInfo(type); 
+                }, function(e) {  mui.toast("登录认证失败！"); 
+	           }); 
+            } else {  mui.toast("已经登录认证！");  } 
+        } 
+ 		function authLogout() { 
+            for (var i in auths) { 
+                var s = auths[i]; 
+                if (s.authResult) { 
+                    s.logout(function(e) { 
+                        console.log("注销登录认证成功！"); 
+                    }, function(e) { 
+                        console.log("注销登录认证失败！"); 
+                    }); 
+                } 
+            } 
+        } 
+ 		function authUserInfo(type) { 
+            var s; 
+            for (var i = 0; i < auths.length; i++) { 
+                if (auths[i].id == type) { s = auths[i];   break; } 
+            } 
+               s.getUserInfo(function(e) { 
+                    var jsonObj = s.userInfo; 
+                    showData(type,jsonObj);
+                    authLogout(); 
+                }, function(e) { 
+                    alert("获取用户信息失败：" + e.message + " - " + e.code); 
+                });  
+        } 
+		function showData(type,data) { 
+            var userphoto = document.getElementById('userphoto'); 
+			var name = document.getElementById('name');
+            switch (type){ 
+                case 'weixin': 
+                    userphoto.src = data.headimgurl; 
+					name.innerText = data.nickname;
+                    break; 
+                case 'qq': 
+                    userphoto.src = data.figureurl_qq_2;
+					name.innerText = data.nickname;
+                    break; 
+                default: 
+                    break; 
+            } 
+        } 
+
+	</script>
+</html>
